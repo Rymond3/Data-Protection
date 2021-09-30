@@ -13,8 +13,10 @@ public class Test {
 				(byte)53, (byte)54 };
 		
 		try {
+			// Encrypt the input with the key and decrypt it again
 			byte[] plaintext = s.decryptCBC(s.encryptCBC(input, key), key);
 			
+			// Print the resulting plaintext to prove it is equal to the input
 			for (int i = 0; i < plaintext.length; ++i)
 				System.out.print(plaintext[i] + " ");
 			System.out.println(" ");

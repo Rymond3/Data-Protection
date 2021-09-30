@@ -32,20 +32,24 @@ public class Test_RSA {
 		KeyFactory keyfactory2 = KeyFactory.getInstance("RSA");
 		PrivateKey privateKey = keyfactory2.generatePrivate(keyspec2);
 		
+		// Encrypt plaintext with the Public Key
 		byte[] ciphertext = r.encrypt(plaintext, publicKey);
 		if (ciphertext != null) {
+			//Print the resulting ciphertext
 			System.out.println("Ciphertext:");
 			for (int i = 0; i < ciphertext.length; ++i)
 				System.out.print(ciphertext[i] + " ");
 			System.out.println();
-			
+			// Decrypt ciphertext with the Private Key 
 			byte[] text = r.decrypt(ciphertext, privateKey);
+			// Print the resulting plain text
 			System.out.println("Plaintext:");
 			for (int i = 0; i < text.length; ++i)
 				System.out.print(text[i] + " ");
 			System.out.println();
 		}
 		
+		// Verify the results
 		if (r.verify(plaintext, r.sign(plaintext, privateKey), publicKey))
 			System.out.println("True");
 		else

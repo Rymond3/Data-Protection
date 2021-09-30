@@ -37,19 +37,23 @@ public class RSALibrary {
 
     try {
 
+    	// Initialize the key pair
       final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
       keyGen.initialize(1024);
             
       KeyPair keys = keyGen.generateKeyPair();
       
-      FileOutputStream out = new FileOutputStream("public.key");
+      // Create Public Key file
+      FileOutputStream out = new FileOutputStream(PUBLIC_KEY_FILE);
       out.write(keys.getPublic().getEncoded());
       out.close();
             
-      out = new FileOutputStream("private.key");
+      // Create Private Key file
+      out = new FileOutputStream(PRIVATE_KEY_FILE);
       out.write(keys.getPrivate().getEncoded());
       out.close();
 
+      // Handle possible exceptions
 	} catch (NoSuchAlgorithmException e) {
 		System.out.println("Exception: " + e.getMessage());
 		System.exit(-1);
@@ -119,7 +123,7 @@ public class RSALibrary {
 	  // Gets a Signature object
       Signature signature = Signature.getInstance("SHA1withRSA");
 
-	  // Initialize the signature oject with the private key
+	  // Initialize the signature object with the private key
 	  signature.initSign(key);
 	
 	  // Set plaintext as the bytes to be signed
@@ -150,10 +154,10 @@ public class RSALibrary {
  	 // Gets a Signature object
      Signature signature = Signature.getInstance("SHA1withRSA");
 
-	  // Initialize the signature oject with the public key
+	  // Initialize the signature object with the public key
 	  signature.initVerify(key);
 
-	  // Set plaintext as the bytes to be veryfied
+	  // Set plaintext as the bytes to be verified
 	  signature.update(plaintext);
 
 	  // Verify the signature (signed). Store the outcome in the boolean result
