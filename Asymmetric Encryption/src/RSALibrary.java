@@ -77,9 +77,9 @@ public class RSALibrary {
 	    
 	    ciphertext = cipher.doFinal(plaintext);
     } catch (IllegalBlockSizeException e) {
-      System.err.println("Illegal block size: " + e.getMessage());
+    	System.err.println("Illegal block size: " + e.getMessage());
     } catch (Exception e) {
-        e.printStackTrace();
+    	System.err.println("Error while encrypting: " + e.getMessage());
     }
     return ciphertext;
   }
@@ -103,7 +103,7 @@ public class RSALibrary {
     } catch (IllegalBlockSizeException e) {
         System.err.println("Illegal block size: " + e.getMessage());
     } catch (Exception ex) {
-      ex.printStackTrace();
+    	System.err.println("Error while decrypting: " + ex.getMessage());
     }
 
     return plaintext;
@@ -133,7 +133,7 @@ public class RSALibrary {
 	  signedInfo = signature.sign();
 
     } catch (Exception ex) {
-      ex.printStackTrace();
+    	System.err.println("Error while signing: " + ex.getMessage());
     }
 
 	return signedInfo;
@@ -164,7 +164,7 @@ public class RSALibrary {
 	  result = signature.verify(signed);
 	
     } catch (Exception ex) {
-      ex.printStackTrace();
+    	System.err.println("Error while verifying: " + ex.getMessage());
     }
 
 	return result;

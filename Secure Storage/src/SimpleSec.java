@@ -18,6 +18,7 @@ public class SimpleSec {
 	
 	public static void parseCommand(String[] args) {
 		try {
+			//Parse the arguments
 			switch(args[0]) {
 			case "g":
 				if (args.length == 1)
@@ -55,6 +56,7 @@ public class SimpleSec {
 		RSALibrary rsa = new RSALibrary();
 		
 		try {
+			//Generate keys
 			rsa.generateKeys();
 			System.out.println("Key pair generated successfuly!");
 		} catch (Exception e) {
@@ -64,6 +66,7 @@ public class SimpleSec {
 	
 	public static void encrypt(String sourceFile, String destinationFile) {
 		try {
+			//Read the public key
 			Path path = Paths.get("./public.key");
 			byte[] bytes = Files.readAllBytes(path);
 			//Public key is stored in x509 format
@@ -71,16 +74,20 @@ public class SimpleSec {
 			KeyFactory keyfactory = KeyFactory.getInstance("RSA");
 			PublicKey publicKey = keyfactory.generatePublic(keyspec);
 			
+			//Encrypt the source file using RSA and the publickey
 			RSALibrary rsa = new RSALibrary();
 			byte[] encryptionresult = rsa.encrypt(sourceFile, publicKey);
 			
 			if (encryptionresult != null) {
+				//Decrypt the private key
 				PKCS8EncodedKeySpec keyspec2 = new PKCS8EncodedKeySpec(rsa.decryptPrivateKey());
 				KeyFactory keyfactory2 = KeyFactory.getInstance("RSA");
 				PrivateKey privateKey = keyfactory2.generatePrivate(keyspec2);
 				
+				//Sign the encryption result using the private key
 				byte[] result = rsa.sign(encryptionresult, privateKey);
 				
+				//Concatenate everything and write it to the destination file
 				FileOutputStream out = new FileOutputStream(destinationFile);
 				out.write(encryptionresult);
 		        out.write(result);
@@ -99,9 +106,11 @@ public class SimpleSec {
 	
 	public static void decrypt(String sourceFile, String destinationFile) {
 		try {
+			//Read the source file
 			Path path = Paths.get(sourceFile);
 			byte[] bytes = Files.readAllBytes(path);
 			
+			//Read the public key
 			path = Paths.get("./public.key");
 			byte[] bytes2 = Files.readAllBytes(path);
 			//Public key is stored in x509 format
@@ -109,12 +118,15 @@ public class SimpleSec {
 			KeyFactory keyfactory = KeyFactory.getInstance("RSA");
 			PublicKey publicKey = keyfactory.generatePublic(keyspec);
 			
+			//Separate the signature (128 Bytes) and the encrypted part (rest)
 			byte[] cipherresult = Arrays.copyOfRange(bytes, 0, bytes.length-128);
 	    	byte[] signature = Arrays.copyOfRange(bytes, bytes.length-128, bytes.length);
 			
 			RSALibrary rsa = new RSALibrary();
-	
+			
+			//Verify the signature
 			if (rsa.verify(cipherresult, signature, publicKey)) {
+				//Decrypt the private key
 				byte[] key = rsa.decryptPrivateKey();
 				
 				//Private key is stored in PKCS8 format
@@ -122,8 +134,10 @@ public class SimpleSec {
 				KeyFactory keyfactory2 = KeyFactory.getInstance("RSA");
 				PrivateKey privateKey = keyfactory2.generatePrivate(keyspec2);
 				
+				//Decrypt the cipher using RSA and the private key
 				byte[] result = rsa.decrypt(cipherresult, privateKey);
 				if (result != null) {
+					//Write the plain text to the destination file
 					FileOutputStream out = new FileOutputStream(destinationFile);
 			        out.write(result);
 			        out.close();
@@ -134,7 +148,7 @@ public class SimpleSec {
 					System.err.println("Error while decrypting the file.");
 			}
 			else
-				System.out.println("Signature doesn't match!");
+				System.err.println("Signature doesn't match!");
 			
 		} catch (IOException e) {
 			System.err.println("Couldn't read the file " + sourceFile + ": " + e.getMessage());

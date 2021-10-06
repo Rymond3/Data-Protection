@@ -73,6 +73,7 @@ public class RSALibrary {
   }
   
   public byte[] encryptPrivateKey(KeyPair keys) throws Exception {
+	  //Get the user written passphrase
 	  System.out.print("Introduce a passphrase to encrypt the private key: ");
       Scanner sc = new Scanner(System.in);
       byte[] passphrase = sc.nextLine().getBytes();
@@ -80,13 +81,16 @@ public class RSALibrary {
       
       SymmetricCipher s = new SymmetricCipher();
       
+      //Use the passphrase to encrypt the private key using AES/CBC
       return s.encryptCBC(keys.getPrivate().getEncoded(), passphrase);
   }
   
   public byte[] decryptPrivateKey() throws IOException, Exception {
+	  //Read the encrypted private key
 	  Path path = Paths.get(PRIVATE_KEY_FILE);
 	  byte[] bytes = Files.readAllBytes(path);
 	  
+	  //Get the user written passphrase
 	  System.out.print("Introduce a passphrase to decrypt the private key: ");
       Scanner sc = new Scanner(System.in);
       byte[] passphrase = sc.nextLine().getBytes();
@@ -94,6 +98,7 @@ public class RSALibrary {
       
       SymmetricCipher s = new SymmetricCipher();
       
+      //Use the passphrase to decrypt the private key using AES/CBC
       return s.decryptCBC(bytes, passphrase);
   }
 
@@ -107,21 +112,28 @@ public class RSALibrary {
 	  byte[] result = null;
 
       try {
+    	  //Read the sourcefile
     	  Path path = Paths.get(sourceFile);
     	  byte[] plaintext = Files.readAllBytes(path);
     	  
     	  SymmetricCipher s = new SymmetricCipher();
+    	  
+    	  //Create a 16 Bytes random Session Key
     	  Random rd = new Random();
           byte[] sessionKey = new byte[16];
           rd.nextBytes(sessionKey);
+          
+          //Encrypt the plaintext using AES/CBC and the Session Key
     	  byte[] ciphertext = s.encryptCBC(plaintext, sessionKey);
     	  
     	  // Gets an RSA cipher object
 	      final Cipher cipher = Cipher.getInstance(ALGORITHM);
 	      cipher.init(Cipher.ENCRYPT_MODE, key);
-	    
+	      
+	      //Encrypt the Session Key using RSA and the public key
 	      byte[] cipherkey = cipher.doFinal(sessionKey);
 	      
+	      //Concatenate the ciphertext and cipherkey
 	      ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
 	      outputStream.write(ciphertext);
 	      outputStream.write(cipherkey);
@@ -149,6 +161,7 @@ public class RSALibrary {
     byte[] plaintext = null;
 
     try {
+    	//Divide into cipherkey (128 Bytes) and ciphertext (rest)
     	byte[] ciphertext = Arrays.copyOfRange(cipherinput, 0, cipherinput.length-128);
     	byte[] cipherkey = Arrays.copyOfRange(cipherinput, cipherinput.length-128, cipherinput.length);
     	
@@ -156,8 +169,10 @@ public class RSALibrary {
 	    final Cipher cipher = Cipher.getInstance(ALGORITHM);
 	    cipher.init(Cipher.DECRYPT_MODE, key);
 	    
+	    //Decrypt the session key using RSA and the private key
 	    byte[] sessionkey = cipher.doFinal(cipherkey);
 	    
+	    //Decrypt the text using AES/CBC and the session key
 	    SymmetricCipher s = new SymmetricCipher();
 	    plaintext = s.decryptCBC(ciphertext, sessionkey);   
     } catch (IllegalBlockSizeException e) {

@@ -37,11 +37,14 @@ public class Test_RSA {
 		if (ciphertext != null) {
 			//Print the resulting ciphertext
 			System.out.println("Ciphertext:");
+			
 			for (int i = 0; i < ciphertext.length; ++i)
 				System.out.print(ciphertext[i] + " ");
 			System.out.println();
+			
 			// Decrypt ciphertext with the Private Key 
 			byte[] text = r.decrypt(ciphertext, privateKey);
+			
 			// Print the resulting plain text
 			System.out.println("Plaintext:");
 			for (int i = 0; i < text.length; ++i)
@@ -50,6 +53,7 @@ public class Test_RSA {
 		}
 		
 		// Verify the results
+		System.out.println("Veridic signature:");
 		if (r.verify(plaintext, r.sign(plaintext, privateKey), publicKey))
 			System.out.println("True");
 		else
